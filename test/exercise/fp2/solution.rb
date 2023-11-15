@@ -17,9 +17,7 @@ module Exercise
       def my_map
         return to_enum unless block_given?
 
-        output_array = MyArray.new
-        my_each { |element| output_array << yield(element) }
-        output_array
+        my_reduce(MyArray.new) { |acc, element| acc << yield(element) }
       end
 
       # Написать свою функцию my_compact

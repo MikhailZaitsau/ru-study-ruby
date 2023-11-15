@@ -30,25 +30,25 @@ module Exercise
       end
 
       # Написать свою функцию my_reduce
-      def my_reduce(accumulator = nil, array = nil, &block)
-        if accumulator.instance_of?(String) || accumulator.instance_of?(Symbol)
-          block = ->(acc, element) { acc.send(accumulator, element) }
-          return my_reduce(&block)
-        elsif array.instance_of?(String) || array.instance_of?(Symbol)
-          block = ->(acc, element) { acc.send(array, element) }
-          return my_reduce(accumulator, &block)
-        end
+      def my_reduce(accumulator = nil, operator = nil, &block)
+        raise TypeError, "#{accumulator} is not a number" unless accumulator.is_a?(Numeric) || operator.nil?
+        raise TypeError, "#{operator} is not a symbol or a string" unless string_or_symbol?(operator) || operator.nil?
+        return accumulator if empty?
 
-        array ||= self
-        unless accumulator
-          accumulator = self[0]
-          array = array.drop(1)
-        end
-        return accumulator if array.empty?
+        block = make_block(accumulator) if string_or_symbol?(accumulator)
+        block = make_block(operator) if string_or_symbol?(operator)
+        accumulator = accumulator.nil? || string_or_symbol?(accumulator) ? first : block.call(accumulator, first)
+        MyArray.new(drop(1)).my_reduce(accumulator, &block)
+      end
 
-        accumulator = yield accumulator, array[0]
-        array = array.drop(1)
-        my_reduce(accumulator, array, &block)
+      private
+
+      def string_or_symbol?(argument)
+        argument.is_a?(String) || argument.is_a?(Symbol)
+      end
+
+      def make_block(string_or_symbol)
+        ->(acc, element) { acc.send(string_or_symbol, element) }
       end
     end
   end

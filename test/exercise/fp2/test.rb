@@ -1,7 +1,6 @@
 require 'csv'
 require './test/test_helper'
 require_relative './solution'
-require 'pry-byebug'
 
 # Нужно реализовать примитивы функционального программирования
 class Exercise::Fp2Test < Minitest::Test

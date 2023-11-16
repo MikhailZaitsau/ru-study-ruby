@@ -27,24 +27,21 @@ module Exercise
 
       # Написать свою функцию my_reduce
       def my_reduce(accumulator = nil, operator = nil, &block)
-        raise TypeError, "#{accumulator} is not a number" unless accumulator.is_a?(Numeric) || operator.nil?
-        raise TypeError, "#{operator} is not a symbol or a string" unless string_or_symbol?(operator) || operator.nil?
         return accumulator if empty?
 
-        block = make_block(accumulator) if string_or_symbol?(accumulator)
-        block = make_block(operator) if string_or_symbol?(operator)
-        accumulator = accumulator.nil? || string_or_symbol?(accumulator) ? first : block.call(accumulator, first)
-        MyArray.new(drop(1)).my_reduce(accumulator, &block)
+        block = make_block(accumulator, operator, block)
+        accumulator = accumulator.nil? || block[:accumulator] ? first : block.values[0].call(accumulator, first)
+        MyArray.new(drop(1)).my_reduce(accumulator, &block.values[0])
       end
 
       private
 
-      def string_or_symbol?(argument)
-        argument.is_a?(String) || argument.is_a?(Symbol)
-      end
+      def make_block(accumulator, operator, block)
+        raise LocalJumpError, 'no block given' if accumulator.nil? && operator.nil? && block.nil?
+        return { opretor: ->(acc, element) { acc.send(operator, element) } } if operator
+        return { block: block } if block
 
-      def make_block(string_or_symbol)
-        ->(acc, element) { acc.send(string_or_symbol, element) }
+        { accumulator: ->(acc, element) { acc.send(accumulator, element) } }
       end
     end
   end

@@ -28,20 +28,24 @@ module Exercise
       # Написать свою функцию my_reduce
       def my_reduce(accumulator = nil, operator = nil, &block)
         return accumulator if empty?
+        raise LocalJumpError, 'no block given' if accumulator.nil? && operator.nil? && block.nil?
+        return convert_operator_into_block(accumulator, operator) if operator
+        return convert_accumulator_into_block(accumulator) if block.nil?
 
-        block = make_block(accumulator, operator, block)
-        accumulator = accumulator.nil? || block[:accumulator] ? first : block.values[0].call(accumulator, first)
-        MyArray.new(drop(1)).my_reduce(accumulator, &block.values[0])
+        accumulator = accumulator.nil? ? first : block.call(accumulator, first)
+        MyArray.new(drop(1)).my_reduce(accumulator, &block)
       end
 
       private
 
-      def make_block(accumulator, operator, block)
-        raise LocalJumpError, 'no block given' if accumulator.nil? && operator.nil? && block.nil?
-        return { opretor: ->(acc, element) { acc.send(operator, element) } } if operator
-        return { block: block } if block
+      def convert_operator_into_block(accumulator, operator)
+        block = ->(acc, element) { acc.send(operator, element) }
+        my_reduce(accumulator, &block)
+      end
 
-        { accumulator: ->(acc, element) { acc.send(accumulator, element) } }
+      def convert_accumulator_into_block(accumulator)
+        block = ->(acc, element) { acc.send(accumulator, element) }
+        my_reduce(&block)
       end
     end
   end

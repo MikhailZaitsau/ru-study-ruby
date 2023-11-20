@@ -29,8 +29,8 @@ module Exercise
       def my_reduce(accumulator = nil, operator = nil, &block)
         return accumulator if empty?
         raise LocalJumpError, 'no block given' if accumulator.nil? && operator.nil? && block.nil?
-        return convert_operator_into_block_and_call_my_resuce(accumulator, operator) if operator
-        return convert_accumulator_into_block_and_call_my_resuce(accumulator) if block.nil?
+        return convert_operator_into_block_and_call_my_reduce(accumulator, operator) if operator
+        return convert_accumulator_into_block_and_call_my_reduce(accumulator) if block.nil?
 
         accumulator = accumulator.nil? ? first : block.call(accumulator, first)
         MyArray.new(drop(1)).my_reduce(accumulator, &block)
@@ -38,12 +38,12 @@ module Exercise
 
       private
 
-      def convert_operator_into_block_and_call_my_resuce(accumulator, operator)
+      def convert_operator_into_block_and_call_my_reduce(accumulator, operator)
         block = ->(acc, element) { acc.send(operator, element) }
         my_reduce(accumulator, &block)
       end
 
-      def convert_accumulator_into_block_and_call_my_resuce(accumulator)
+      def convert_accumulator_into_block_and_call_my_reduce(accumulator)
         block = ->(acc, element) { acc.send(accumulator, element) }
         my_reduce(&block)
       end
